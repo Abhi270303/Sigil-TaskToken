@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 import {ERC20} from "@openzepplin/token/ERC20/ERC20.sol";
-import {Test, console} from "forge-std/Test.sol";
 
 contract myToken is ERC20{
 
