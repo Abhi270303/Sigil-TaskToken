@@ -1,61 +1,35 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 
-import {ERC20} from "@openzepplin/token/ERC20/ERC20.sol";
+import { ERC20 } from "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol";
 
-contract myToken is ERC20{
-
-    uint256 private constant s_max_Token_Balance = 10000 ether;
-
+contract MyToken is ERC20 {
+    uint256 private constant s_max_Token_Balance = 1000000000 ether; // 10,000,000,000,000,000,000 TT (1 TT = 0.001 ETH)
     uint256 private constant s_tokenTimeLocked = 3600;
-
     uint256 private immutable s_tokenLiveTime;
-
     error tokenStillLocked();
     error tokenBalanceExceed();
 
-    mapping(address => uint256) public _balances;
-
-    constructor(uint256 _inititalSupply) ERC20("TaskToken","TT"){
-        _mint(msg.sender,_inititalSupply);
+    constructor(uint256 _initialSupply) ERC20("TaskToken", "TT") {
+        _mint(msg.sender, _initialSupply);
         s_tokenLiveTime = block.timestamp;
     }
 
-    function transfer(address to, uint256 amount) public override returns (bool) {
-        if(block.timestamp<s_tokenLiveTime+s_tokenTimeLocked){
-            revert tokenStillLocked();
-        }
-        if(balanceOf(to)+amount>s_max_Token_Balance){
-            revert tokenBalanceExceed();
-        }
-        address owner = _msgSender();
-        _transfer(owner, to, amount);
-        return true;
-    }
-
-    function transferFrom(address from, address to, uint256 amount) public  override returns (bool) {
-         if(block.timestamp<s_tokenLiveTime+s_tokenTimeLocked){
-            revert tokenStillLocked();
-        }
-        if(balanceOf(to)+amount>s_max_Token_Balance){
-            revert tokenBalanceExceed();
-        }
-        address spender = _msgSender();
-        _spendAllowance(from, spender, amount);
-        _transfer(from, to, amount);
-        return true;
-    }
-
-    function getMaxTokeBalance() external view returns(uint256){
-        return s_max_Token_Balance;
-    }
-
-    function getTokenTimeLocked() external view returns(uint256){
-        return s_tokenTimeLocked;
-    }
-
-    function getTokenLiveTime() external view returns(uint256){
+    function getTokenLiveTime() public view returns (uint256) {
         return s_tokenLiveTime;
     }
 
+    function getTokenTimeLocked() public pure returns (uint256) {
+        return s_tokenTimeLocked;
+    }
+
+    // Convert TT to ETH
+    function TTtoETH(uint256 ttAmount) public pure returns (uint256) {
+        return ttAmount * 1e12; // 1 TT = 0.001 ETH (1e12 wei)
+    }
+
+    // Convert ETH to TT
+    function ETHtoTT(uint256 ethAmount) public pure returns (uint256) {
+        return ethAmount / 1e12; // 1 TT = 0.001 ETH (1e12 wei)
+    }
 }
